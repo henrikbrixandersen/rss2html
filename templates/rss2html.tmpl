@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="<TMPL_VAR NAME=ENCODING>"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="da">
+<head>
+  <title><TMPL_VAR NAME=TITLE></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=<TMPL_VAR NAME=ENCODING>" />
+	<meta name="viewport" content="width=device-width" />
+	<link rel="stylesheet" href="rss2html.css" title="Default" type="text/css" />
+</head>
+<body>
+	<div id="header" style="<TMPL_VAR NAME=BACKGROUND>">
+		<h1><TMPL_VAR NAME=SUBTITLE></h1>
+	</div>
+
+  <div id="contents">
+			<TMPL_LOOP NAME=ITEM_LOOP>
+				<div class="item" onclick="window.open('<TMPL_VAR NAME=ITEM_LINK>');">
+					<span class="itemdate"><TMPL_VAR NAME=ITEM_DATE></span>
+					<span class="itemupdated"><TMPL_VAR NAME=ITEM_UPDATED></span>
+					<h2 class="itemtitle"><TMPL_VAR NAME=ITEM_TITLE></h2>
+					<TMPL_VAR NAME=ITEM_TEXT>
+				</div>
+			</TMPL_LOOP>
+  </div>
+
+  <div id="footer">
+		<TMPL_VAR NAME=TIMESTAMP><br />
+		<TMPL_VAR NAME=COUNT>
+	</div>
+</body>
+</html>
