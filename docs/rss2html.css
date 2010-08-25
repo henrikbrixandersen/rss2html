@@ -63,6 +63,8 @@ p {
 
 img {
   border: none;
+  max-width: 100%;
+  height: auto;
 }
 
 .feedflare {
