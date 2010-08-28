@@ -12,6 +12,9 @@
 	<div id="header" style="<TMPL_VAR NAME=BACKGROUND>">
 		<h1><TMPL_VAR NAME=SUBTITLE></h1>
 	</div>
+	<div id="subheader">
+		<TMPL_VAR NAME=TIMESTAMP> (<TMPL_VAR NAME=COUNT>)
+	</div>
 
   <div id="contents">
 			<TMPL_LOOP NAME=ITEM_LOOP>
@@ -24,9 +27,5 @@
 			</TMPL_LOOP>
   </div>
 
-  <div id="footer">
-		<TMPL_VAR NAME=TIMESTAMP><br />
-		<TMPL_VAR NAME=COUNT>
-	</div>
 </body>
 </html>
