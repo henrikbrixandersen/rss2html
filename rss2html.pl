@@ -12,9 +12,10 @@ use LWP::UserAgent;
 use XML::RSS;
 
 # Script arguments
-my ($url, $db, $locale, $background);
+my ($url, $db, $output, $locale, $background);
 GetOptions('url|u=s'        => \$url,
 		   'db|d=s'         => \$db,
+		   'output|o'       => \$output,
 		   'locale|l=s'     => \$locale,
 		   'background|b=s' => \$background,
 		   'help|h'         => sub { usage(); exit });
@@ -83,6 +84,7 @@ $uh->finish;
 my $dh = $dbh->prepare('DELETE FROM rss2html WHERE publishDate < ?') or die "Couldn't prepare delete statement: " . $dbh->errstr;
 my $limit = DateTime->now(time_zone => $timezone)->subtract(hours => $hours)->epoch;;
 $dh->execute($limit) or die "Couldn't delete rows: " . $dbh->errstr;
+$dh->finish;
 
 # Select rows
 my $sh = $dbh->prepare('SELECT link, publishDate, updated, title, text FROM rss2html ORDER BY publishDate DESC') or die "Couldn't prepare select statement: " . $dbh->errstr;
@@ -119,7 +121,13 @@ my $timestamp = encode($encoding, DateTime->now(time_zone => $timezone)->strftim
 $template->param(TIMESTAMP => ucfirst $timestamp);
 $template->param(COUNT => scalar @item_loop);
 
-print $template->output;
+if (! $output || $output eq '-') {
+	print $template->output;
+} else {
+	open(OUTPUT, ">$output") or die "Couldn't open $output for writing";
+	print OUTPUT $template->output;
+	close(OUTPUT);
+}
 
 # Usage
 sub usage {
@@ -129,6 +137,7 @@ Usage: $0 [options]
 Options:
 --url, -u          The URL of the RSS feed
 --db, -d           The database filename
+--output, -o       The output filename (or - for stdout)
 --locale, -l       The locale (e.g. da, en_US, ...)
 --background, -b   The title background color (e.g #aa55aa)
 
