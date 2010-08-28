@@ -28,6 +28,11 @@ a {
   color: #555555;
 }
 
+#subheader #status {
+  color: #ff0000;
+  font-weight: bold;
+}
+
 .item {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
