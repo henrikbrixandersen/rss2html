@@ -11,9 +11,6 @@ use HTML::Template;
 use LWP::UserAgent;
 use XML::RSS;
 
-# TODO: Gizmodo as well?
-#my $url = 'http://gizmodo.com/excerpts.xml';
-
 # Script arguments
 my ($url, $db, $locale, $background);
 GetOptions('url|u=s'        => \$url,
