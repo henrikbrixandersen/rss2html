@@ -15,7 +15,7 @@ use XML::RSS;
 my ($url, $db, $output, $locale, $background);
 GetOptions('url|u=s'        => \$url,
 		   'db|d=s'         => \$db,
-		   'output|o'       => \$output,
+		   'output|o=s'     => \$output,
 		   'locale|l=s'     => \$locale,
 		   'background|b=s' => \$background,
 		   'help|h'         => sub { usage(); exit });
