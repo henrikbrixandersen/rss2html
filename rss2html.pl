@@ -46,49 +46,57 @@ my $dbh = DBI->connect("dbi:SQLite:$db") || die "Cannot connect to $db: $DBI::er
 if ($response->is_success) {
 	# Parse RSS
 	my $rss = XML::RSS->new;
-	$rss->parse($response->content);
 
-	# Prepare DB
-	my $ch = $dbh->prepare('SELECT publishDate, updated FROM rss2html WHERE guid=?') or die "Couldn't prepare count statement: " . $dbh->errstr;
-	my $ih = $dbh->prepare('INSERT INTO rss2html (guid, link, publishDate, title, text) VALUES (?, ?, ?, ?, ?)') or die "Couldn't prepare insert statement: " . $dbh->errstr;
-	my $uh = $dbh->prepare('UPDATE rss2html SET link=?, publishDate=?, title=?, text=?, updated=? WHERE guid=?') or die "Couldn't prepare update statement: " . $dbh->errstr;
+	eval {
+		$rss->parse($response->content);
+	};
 
-	# Update DB
-	foreach my $item (@{$rss->{'items'}}) {
-		my $guid;
-		my $link;
+	unless ($@) {
+		# Prepare DB
+		my $ch = $dbh->prepare('SELECT publishDate, updated FROM rss2html WHERE guid=?') or die "Couldn't prepare count statement: " . $dbh->errstr;
+		my $ih = $dbh->prepare('INSERT INTO rss2html (guid, link, publishDate, title, text) VALUES (?, ?, ?, ?, ?)') or die "Couldn't prepare insert statement: " . $dbh->errstr;
+		my $uh = $dbh->prepare('UPDATE rss2html SET link=?, publishDate=?, title=?, text=?, updated=? WHERE guid=?') or die "Couldn't prepare update statement: " . $dbh->errstr;
 
-		if ($item->{'permaLink'}) {
-			$guid = $item->{'permaLink'};
-			$link = $item->{'permaLink'};
-		} else {
-			$guid = $item->{'guid'};
-			$link = $item->{'link'};
+		# Update DB
+		foreach my $item (@{$rss->{'items'}}) {
+			my $guid;
+			my $link;
+
+			if ($item->{'permaLink'}) {
+				$guid = $item->{'permaLink'};
+				$link = $item->{'permaLink'};
+			} else {
+				$guid = $item->{'guid'};
+				$link = $item->{'link'};
+			}
+
+			my $date = str2time($item->{'pubDate'});
+			my $title = $item->{'title'};
+			my $text = $item->{'description'};
+
+			$ch->execute($guid);
+			my ($olddate, $oldupdated) = $ch->fetchrow_array();
+
+			if ($olddate) {
+				my $updated = ($olddate eq $date) ? 0 : 1;
+				$uh->execute($link, $date, $title, $text, $oldupdated ? $oldupdated : $updated, $guid) or die "Couldn't update row: " . $dbh->errstr;
+			} else {
+				$ih->execute($guid, $link, $date, $title, $text) or die "Couldn't insert row: " . $dbh->errstr;
+			}
 		}
 
-		my $date = str2time($item->{'pubDate'});
-		my $title = $item->{'title'};
-		my $text = $item->{'description'};
+		$ch->finish;
+		$ih->finish;
+		$uh->finish;
 
-		$ch->execute($guid);
-		my ($olddate, $oldupdated) = $ch->fetchrow_array();
-
-		if ($olddate) {
-			my $updated = ($olddate eq $date) ? 0 : 1;
-			$uh->execute($link, $date, $title, $text, $oldupdated ? $oldupdated : $updated, $guid) or die "Couldn't update row: " . $dbh->errstr;
-		} else {
-			$ih->execute($guid, $link, $date, $title, $text) or die "Couldn't insert row: " . $dbh->errstr;
-		}
+		# Delete rows older than 24 hours
+		my $dh = $dbh->prepare('DELETE FROM rss2html WHERE publishDate < ?') or die "Couldn't prepare delete statement: " . $dbh->errstr;
+		my $limit = DateTime->now(time_zone => $timezone)->subtract(hours => $hours)->epoch;;
+		$dh->execute($limit) or die "Couldn't delete rows: " . $dbh->errstr;
+		$dh->finish;
+	} else {
+		$status = $@;
 	}
-	$ch->finish;
-	$ih->finish;
-	$uh->finish;
-
-	# Delete rows older than 24 hours
-	my $dh = $dbh->prepare('DELETE FROM rss2html WHERE publishDate < ?') or die "Couldn't prepare delete statement: " . $dbh->errstr;
-	my $limit = DateTime->now(time_zone => $timezone)->subtract(hours => $hours)->epoch;;
-	$dh->execute($limit) or die "Couldn't delete rows: " . $dbh->errstr;
-	$dh->finish;
 }
 
 # Select rows
