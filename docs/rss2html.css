@@ -45,6 +45,7 @@ a {
   background-image: url(arrow.png);
   background-repeat: no-repeat;
   background-position: center right;
+  background-size: 25px 20px;
   cursor: pointer;
 }
 
@@ -75,3 +76,11 @@ img {
 .feedflare {
   display: none;
 }
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+  .item {
+      background-image: url(arrow@2x.png);
+  }
+}
+																	   }
+																	    }
