@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (c) 2010 Henrik Brix Andersen <henrik@brixandersen.dk>
+# Copyright (c) 2010 - 2012 Henrik Brix Andersen <henrik@brixandersen.dk>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
