@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 
 DBSCRIPT=db/rss2html.sql
 
